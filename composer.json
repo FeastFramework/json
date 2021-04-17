@@ -1,0 +1,26 @@
+{
+  "name": "feast/json",
+  "description": "Standalone JSON marshaller based off the one built into FEAST framework at feast/feast",
+  "homepage": "https://docs.feast-framework.com/json.md",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Jeremy Presutti",
+      "email": "Jeremy@Presutti.us",
+      "homepage": "https://github.com/jpresutti",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.0.0"
+  },
+  "require-dev": {
+    "psalm/phar": "^4.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Feast\\Json\\": "src",
+      "Mocks\\": "tests/Mocks"
+    }
+  }
+}

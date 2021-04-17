@@ -166,7 +166,6 @@ class Json
             $dateFormat = \DateTimeInterface::ISO8601;
             $attributes = $property->getAttributes(JsonItem::class);
             foreach ($attributes as $attribute) {
-                /** @var JsonItem $attributeObject */
                 $attributeObject = $attribute->newInstance();
                 $name = $attributeObject->name ?? $name;
                 $type = $attributeObject->arrayOrCollectionType;

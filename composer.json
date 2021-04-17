@@ -1,7 +1,7 @@
 {
   "name": "feast/json",
   "description": "Standalone JSON marshaller based off the one built into FEAST framework at feast/feast",
-  "homepage": "https://docs.feast-framework.com/json.md",
+  "homepage": "https://docs.feast-framework.com/json-standalone.md",
   "license": "Apache-2.0",
   "authors": [
     {

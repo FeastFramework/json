@@ -4,7 +4,7 @@
 ![Psalm Static analysis](https://github.com/FeastFramework/json/workflows/Psalm%20Static%20analysis/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/FeastFramework/json/branch/master/graph/badge.svg?token=u2hsfBAfHw)](https://codecov.io/gh/FeastFramework/json)
 
-[![Packagist](https://img.shields.io/packagist/v/feast/json)](https://packagist.org/packages/feast/pusher)
+[![Packagist](https://img.shields.io/packagist/v/feast/json)](https://packagist.org/packages/feast/json)
 ![License](https://img.shields.io/packagist/l/feast/json.svg)
 [![Docs](https://img.shields.io/badge/docs-json-green.svg)](https://docs.feast-framework.com/json-standalone.md)
 

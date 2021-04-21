@@ -50,6 +50,8 @@ class TestJsonItem
     public int $count;
 
     public int $records;
+    
+    public \stdClass $aClass;
 
     #[JsonItem(dateFormat: 'Ymd')]
     public DateTime $timestamp;

@@ -57,12 +57,12 @@ class Json
             if ($reflected->isInitialized($object)) {
                 /** @var scalar|object|array $oldItem */
                 $oldItem = $object->{$oldName};
-                if (is_object(
+                if (is_array($oldItem) || $oldItem instanceof \stdClass) {
+                    $return->{$newName} = self::marshalArray((array)$oldItem);
+                } elseif (is_object(
                         $oldItem
                     ) && $oldItem instanceof DateTime === false) {
                     $return->{$newName} = (object)json_decode(self::marshal($oldItem));
-                } elseif (is_array($oldItem)) {
-                    $return->{$newName} = self::marshalArray($oldItem);
                 } elseif ($oldItem instanceof DateTime) {
                     $return->{$newName} = $oldItem->format($newInfo['dateFormat']);
                 } else {
@@ -141,10 +141,10 @@ class Json
          * @var scalar|object|array $item
          */
         foreach ($items as $key => $item) {
-            if (is_object($item)) {
+            if (is_array($item) || $item instanceof \stdClass) {
+                $return[$key] = self::marshalArray((array)$item);
+            } elseif (is_object($item)) {
                 $return[$key] = (array)json_decode(self::marshal($item));
-            } elseif (is_array($item)) {
-                $return[$key] = self::marshalArray($item);
             } else {
                 $return[$key] = $item;
             }
@@ -219,6 +219,22 @@ class Json
     }
 
     /**
+     * Unmarshal a property into stdClass.
+     * 
+     * @param ReflectionProperty $property
+     * @param object $object
+     * @param array $jsonData
+     */
+    protected static function unmarshalStdClass(
+        ReflectionProperty $property,
+        object $object,
+        array $jsonData
+    ): void {
+        $newProperty = $property->getName();
+        $object->{$newProperty} = (object)json_decode(json_encode($jsonData));
+    }
+
+    /**
      * Unmarshal a property onto the object.
      *
      * @param ReflectionProperty $property
@@ -245,7 +261,10 @@ class Json
                 $propertySubtype,
                 $propertyValue,
             );
-        } elseif (is_a($propertyType, DateTime::class, true) && is_scalar($propertyValue)) {
+        } elseif ( $propertyType === \stdClass::class && is_array($propertyValue) ) {
+            self::unmarshalStdClass($property,$object,$propertyValue);
+        }
+        elseif (is_a($propertyType, DateTime::class, true) && is_scalar($propertyValue)) {
             $object->{$property->getName()} = DateTime::createFromFormat($propertyDateFormat, (string)$propertyValue);
         } elseif (class_exists($propertyType, true)) {
             $object->{$property->getName()} = self::unmarshal(

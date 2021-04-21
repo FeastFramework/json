@@ -56,6 +56,9 @@ class TestJsonItem
 
     public DateTime $otherTimestamp;
 
+    #[JsonItem(included: false)]
+    public string $notIncluded;
+    
     public function __construct()
     {
     }

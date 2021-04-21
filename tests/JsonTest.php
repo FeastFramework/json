@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
 
 class JsonTest extends TestCase
 {
-    
+
     public function setUp(): void
     {
         date_default_timezone_set('America/New_York');
@@ -36,6 +36,7 @@ class JsonTest extends TestCase
         $item->firstName = 'FEAST';
         $item->lastName = 'Framework';
         $item->count = 4;
+        $item->notIncluded = 'Testing';
 
         $item->item = new TestJsonItem();
         $item->item->firstName = 'Jeremy';
@@ -57,16 +58,15 @@ class JsonTest extends TestCase
         $item3 = new TestJsonItem();
         $item3->firstName = 'Item';
         $item3->lastName = 'Parsing';
-        
+
         $secondItem = new \Mocks\SecondItem();
         $secondItem->firstName = 'Orlando';
         $secondItem->lastName = 'Florida';
 
         $item->secondItem = $secondItem;
-        
 
         $timestampOne = DateTime::createFromFormat('U', '1618534584');
-        $timestampTwo = DateTime::createFromFormat('U','1617619260');
+        $timestampTwo = DateTime::createFromFormat('U', '1617619260');
 
         $timestampOne->setTimezone(new DateTimeZone('America/New_York'));
         $timestampTwo->setTimezone(new DateTimeZone('America/New_York'));

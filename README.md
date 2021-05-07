@@ -17,4 +17,4 @@ other projects and does not depend on any pieces of FEAST framework.
 The classes are named slightly different than the ones built into FEAST, so if you decide to use FEAST in the future,
 you can adapt your classes using the Marshaller at your convenience.
 
-Read the docs [here](https://docs.feast-framework.com/json-standalone.md)
+Read the docs [here](https://docs.feast-framework.com/json-standalone.html)

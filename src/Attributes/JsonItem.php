@@ -20,11 +20,12 @@ declare(strict_types=1);
 
 namespace Feast\Json\Attributes;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_PROPERTY)]
 class JsonItem
 {
+    public ?string $name = null;
+        public ?string $arrayOrCollectionType = null;
+        public string $dateFormat = \DateTimeInterface::ISO8601;
+        public bool $included = true;
     /**
      * JsonItem constructor.
      *
@@ -34,10 +35,42 @@ class JsonItem
      * @param bool $included - If included is false, JSON strings from the decorated object will not include this property.
      */
     public function __construct(
-        public ?string $name = null,
-        public ?string $arrayOrCollectionType = null,
-        public string $dateFormat = \DateTimeInterface::ISO8601,
-        public bool $included = true
+        ?string $name = null,
+        ?string $arrayOrCollectionType = null,
+        string $dateFormat = \DateTimeInterface::ISO8601,
+        bool $included = true
     ) {
+        $this->name = $name;
+        $this->arrayOrCollectionType = $arrayOrCollectionType;
+        $this->dateFormat = $dateFormat;
+        $this->included = $included;
+    }
+
+    public static function createFromDocblock(string $name, string $docblock): self {
+        $included = true;
+        $dateTimeFormat = \DateTimeInterface::ISO8601;
+        $arrayOrCollectionType = null;
+
+        $regex = '/@JsonItem:([a-zA-z]*) (.*)/';
+        $matches = [];
+        preg_match_all($regex,$docblock,$matches,PREG_SET_ORDER);
+
+        foreach($matches as $match) {
+            switch($match[1]) {
+                case 'name':
+                    $name = $match[2];
+                    break;
+                case 'dateFormat':
+                    $dateTimeFormat = $match[2];
+                    break;
+                case 'included':
+                    $included = $match[2] === 'true';
+                    break;
+                case 'arrayOrCollectionType':
+                    $arrayOrCollectionType = $match[2];
+                    break;
+            }
+        }
+        return new self($name,$arrayOrCollectionType,$dateTimeFormat,$included);
     }
 }

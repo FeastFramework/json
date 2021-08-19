@@ -27,9 +27,14 @@ use Feast\Json\Attributes\JsonItem;
  */
 class SecondItem
 {
-    #[JsonItem(name: 'also_first_name')]
+    /**
+     * @JsonItem:name also_first_name
+     */
     public string $firstName;
-    #[JsonItem(name: 'also_last_name')]
+
+    /**
+     * @JsonItem:name also_last_name
+     */
     public string $lastName;
 
     public function __construct()

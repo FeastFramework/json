@@ -42,7 +42,7 @@ class Json
     public static function marshal(object $object): string
     {
         $return = new \stdClass();
-        $paramInfo = self::getClassParamInfo($object::class);
+        $paramInfo = self::getClassParamInfo(get_class($object));
         /**
          * @var string $oldName
          * @var array{name:string|null,type:string|null,dateFormat:string,included:bool} $newInfo
@@ -86,13 +86,13 @@ class Json
      * @throws \Feast\Json\Exception\JsonException
      * @see \Feast\Json\Attributes\JsonItem
      */
-    public static function unmarshal(string $data, string|object $objectOrClass): object
+    public static function unmarshal(string $data, $objectOrClass): object
     {
         if (is_string($objectOrClass)) {
             try {
                 /** @psalm-suppress MixedMethodCall */
                 $object = new $objectOrClass();
-            } catch (\ArgumentCountError) {
+            } catch (\ArgumentCountError $e) {
                 throw new JsonException(
                     'Attempted to unmarshal into a class without a no-argument capable constructor'
                 );
@@ -100,9 +100,9 @@ class Json
         } else {
             $object = $objectOrClass;
         }
-        $className = $object::class;
+        $className = get_class($object);
         /** @var array $jsonData */
-        $jsonData = json_decode($data, true, flags: JSON_THROW_ON_ERROR);
+        $jsonData = json_decode($data, true, 512,  JSON_THROW_ON_ERROR);
         $paramInfo = self::getClassParamInfo($className);
 
         $classInfo = new \ReflectionClass($className);
@@ -168,9 +168,10 @@ class Json
             $type = null;
             $dateFormat = \DateTimeInterface::ISO8601;
             $included = true;
-            $attributes = $property->getAttributes(JsonItem::class);
-            foreach ($attributes as $attribute) {
-                $attributeObject = $attribute->newInstance();
+            $attributes = $property->getDocComment();
+            if ( $attributes !== false ) {
+                $attributeObject = JsonItem::createFromDocblock($name,$attributes);
+            
                 $name = $attributeObject->name ?? $name;
                 $type = $attributeObject->arrayOrCollectionType;
                 $dateFormat = $attributeObject->dateFormat;
@@ -250,7 +251,7 @@ class Json
         ReflectionProperty $property,
         string $propertySubtype,
         string $propertyDateFormat,
-        mixed $propertyValue,
+        $propertyValue,
         object $object
     ): void {
         $propertyType = (string)$property->getType();

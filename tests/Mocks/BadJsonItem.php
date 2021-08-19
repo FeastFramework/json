@@ -27,9 +27,14 @@ use Feast\Json\Attributes\JsonItem;
  */
 class BadJsonItem
 {
-    #[JsonItem(name: 'first_name')]
+    /**
+     * @JsonItem:name first_name
+     */
     public string $firstName;
-    #[JsonItem(name: 'last_name')]
+    
+    /**
+     * @JsonItem:name last_name
+     */
     public string $lastName;
 
     public function __construct(string $explodesBecauseNotPassed)

@@ -31,17 +31,30 @@ use Feast\Json\Attributes\JsonItem;
  */
 class TestJsonItem
 {
-    #[JsonItem(name: 'first_name')]
+    /**
+     * @JsonItem:name first_name
+     */
     public string $firstName;
-    #[JsonItem(name: 'last_name')]
+
+    /**
+     * @JsonItem:name last_name
+     */
+
     public string $lastName;
-    #[JsonItem(name: 'test_item')]
+
+    /**
+     * @JsonItem:name test_item
+     */
     public TestJsonItem $item;
 
-    #[JsonItem(name: 'second_item')]
+    /**
+     * @JsonItem:name second_item
+     */
     public SecondItem $secondItem;
 
-    #[JsonItem(arrayOrCollectionType: TestJsonItem::class)]
+    /**
+     * @JsonItem:arrayOrCollectionType \Mocks\TestJsonItem
+     */
     public array $items;
 
     public array $cards;
@@ -53,12 +66,16 @@ class TestJsonItem
     
     public \stdClass $aClass;
 
-    #[JsonItem(dateFormat: 'Ymd')]
+    /**
+     * @JsonItem:dateFormat Ymd
+     */
     public DateTime $timestamp;
 
     public DateTime $otherTimestamp;
 
-    #[JsonItem(included: false)]
+    /**
+     * @JsonItem:included false
+     */
     public string $notIncluded;
     
     public function __construct()

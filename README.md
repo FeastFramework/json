@@ -7,7 +7,7 @@
 ![PHP Version](https://img.shields.io/packagist/php-v/feast/json/v0.1.0)
 [![Packagist](https://img.shields.io/packagist/v/feast/json)](https://packagist.org/packages/feast/json)
 ![License](https://img.shields.io/github/license/FeastFramework/json.svg)
-[![Docs](https://img.shields.io/badge/docs-json-green.svg)](https://docs.feast-framework.com/json-standalone.html)
+[![Docs](https://img.shields.io/badge/docs-json-green.svg)](https://docs.feast-framework.com/json-standalone-74.html)
 
 # FEAST JSON Marshaller
 

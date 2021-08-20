@@ -10,6 +10,9 @@
 [![Docs](https://img.shields.io/badge/docs-json-green.svg)](https://docs.feast-framework.com/json-standalone.html)
 
 # FEAST JSON Marshaller
+[PHP 7.4 Compatible version](https://github.com/FeastFramework/json/tree/PHP74)
+
+PHP 8.0 Compatible version
 
 This JSON marshaller is based on the one built into FEAST framework. However, it is designed for standalone usage in
 other projects and does not depend on any pieces of FEAST framework.

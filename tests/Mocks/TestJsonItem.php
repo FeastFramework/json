@@ -68,6 +68,7 @@ class TestJsonItem
 
     /**
      * @JsonItem:dateFormat Ymd
+     * @JsonItem:name a_timestamp
      */
     public DateTime $timestamp;
 

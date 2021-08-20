@@ -77,7 +77,7 @@ class JsonTest extends TestCase
 
         $data = Json::marshal($item);
         $this->assertEquals(
-            '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}',
+            '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}',
             $data
         );
     }
@@ -98,7 +98,7 @@ class JsonTest extends TestCase
 
     public function testUnmarshal(): void
     {
-        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
+        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
         /** @var TestJsonItem $result */
         $result = Json::unmarshal($data, TestJsonItem::class);
         $this->assertEquals('FEAST', $result->firstName);
@@ -113,18 +113,19 @@ class JsonTest extends TestCase
         $this->assertEquals('20210405', $result->otherTimestamp->format('Ymd'));
         $this->assertTrue($result->secondItem instanceof \Mocks\SecondItem);
         $this->assertTrue($result->aClass instanceof stdClass);
+        $this->assertTrue($result->items[0] instanceof TestJsonItem);
         $this->assertEquals('ItWorks',$result->aClass->test);
     }
 
     public function testUnmarshalMarshal(): void
     {
-        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
+        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
         $this->assertEquals($data, Json::marshal(Json::unmarshal($data, TestJsonItem::class)));
     }
 
     public function testUnmarshalMarshalUnmarshalMarshal(): void
     {
-        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
+        $data = '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}';
         $this->assertEquals(
             $data,
             Json::marshal(

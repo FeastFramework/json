@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace Mocks;
 
 use DateTime;
-use Feast\Json\Attributes\JsonItem;
 
 /**
  * Class TestJsonItem
@@ -60,10 +59,21 @@ class TestJsonItem
     public array $cards;
 
     public ?int $calls = null;
+
+    /**
+     * @JsonItem:omitEmpty true
+     */
+    public ?int $moreCalls = null;
+
+    /**
+     * @JsonItem:omitEmpty true
+     */
+    public string $stringCalls = '';
+
     public int $count;
 
     public int $records;
-    
+
     public \stdClass $aClass;
 
     /**
@@ -78,7 +88,7 @@ class TestJsonItem
      * @JsonItem:included false
      */
     public string $notIncluded;
-    
+
     public function __construct()
     {
     }

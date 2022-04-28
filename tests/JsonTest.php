@@ -37,6 +37,7 @@ class JsonTest extends TestCase
         $item->lastName = 'Framework';
         $item->count = 4;
         $item->notIncluded = 'Testing';
+        $item->moreCalls = 5;
         $item->aClass = new stdClass();
         $item->aClass->test = 'ItWorks';
 
@@ -44,10 +45,13 @@ class JsonTest extends TestCase
         $item->item->firstName = 'Jeremy';
         $item->item->lastName = 'Presutti';
         $item->item->calls = 4;
+        $item->item->stringCalls = 'test';
         $item->cards = ['4', 5, ['6']];
         $item2 = new TestJsonItem();
         $item2->firstName = 'PHP';
         $item2->lastName = '7.4';
+        $item2->moreCalls = 6;
+        $item2->stringCalls = 'test 2';
         $item3 = new TestJsonItem();
         $item3->firstName = 'PHP';
         $item3->lastName = '8.0';
@@ -77,7 +81,7 @@ class JsonTest extends TestCase
 
         $data = Json::marshal($item);
         $this->assertEquals(
-            '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}',
+            '{"first_name":"FEAST","last_name":"Framework","test_item":{"first_name":"Jeremy","last_name":"Presutti","calls":4,"stringCalls":"test"},"second_item":{"also_first_name":"Orlando","also_last_name":"Florida"},"items":[{"first_name":"PHP","last_name":"7.4","calls":null,"moreCalls":6,"stringCalls":"test 2"},{"first_name":"PHP","last_name":"8.0","calls":null}],"cards":["4",5,["6"]],"calls":null,"moreCalls":5,"count":4,"aClass":{"test":"ItWorks"},"a_timestamp":"20210415","otherTimestamp":"2021-04-05T06:41:00-0400"}',
             $data
         );
     }
@@ -114,7 +118,7 @@ class JsonTest extends TestCase
         $this->assertTrue($result->secondItem instanceof \Mocks\SecondItem);
         $this->assertTrue($result->aClass instanceof stdClass);
         $this->assertTrue($result->items[0] instanceof TestJsonItem);
-        $this->assertEquals('ItWorks',$result->aClass->test);
+        $this->assertEquals('ItWorks', $result->aClass->test);
     }
 
     public function testUnmarshalMarshal(): void

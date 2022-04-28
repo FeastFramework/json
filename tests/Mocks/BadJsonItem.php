@@ -31,7 +31,7 @@ class BadJsonItem
      * @JsonItem:name first_name
      */
     public string $firstName;
-    
+
     /**
      * @JsonItem:name last_name
      */

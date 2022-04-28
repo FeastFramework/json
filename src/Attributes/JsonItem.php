@@ -23,9 +23,11 @@ namespace Feast\Json\Attributes;
 class JsonItem
 {
     public ?string $name = null;
-        public ?string $arrayOrCollectionType = null;
-        public string $dateFormat = \DateTimeInterface::ISO8601;
-        public bool $included = true;
+    public ?string $arrayOrCollectionType = null;
+    public string $dateFormat = \DateTimeInterface::ISO8601;
+    public bool $included = true;
+    public bool $omitEmpty = false;
+
     /**
      * JsonItem constructor.
      *
@@ -33,30 +35,35 @@ class JsonItem
      * @param string|null $arrayOrCollectionType
      * @param string $dateFormat - Only used if the actual property type is a Date. This will specify the format it should be converted to in the json string.
      * @param bool $included - If included is false, JSON strings from the decorated object will not include this property.
+     * @param bool $omitEmpty - If omitEmpty is true, JSON strings from the decorated object will skip this property if an empty string or null are detected.
      */
     public function __construct(
         ?string $name = null,
         ?string $arrayOrCollectionType = null,
-        string $dateFormat = \DateTimeInterface::ISO8601,
-        bool $included = true
+        string $dateFormat = \DateTimeInterface::ATOM,
+        bool $included = true,
+        bool $omitEmpty = false
     ) {
         $this->name = $name;
         $this->arrayOrCollectionType = $arrayOrCollectionType;
         $this->dateFormat = $dateFormat;
         $this->included = $included;
+        $this->omitEmpty = $omitEmpty;
     }
 
-    public static function createFromDocblock(string $name, string $docblock): self {
+    public static function createFromDocblock(string $name, string $docblock): self
+    {
         $included = true;
-        $dateTimeFormat = \DateTimeInterface::ISO8601;
+        $omitEmpty = false;
+        $dateTimeFormat = \DateTimeInterface::ATOM;
         $arrayOrCollectionType = null;
 
         $regex = '/@JsonItem:([a-zA-z]*) (.*)/';
         $matches = [];
-        preg_match_all($regex,$docblock,$matches,PREG_SET_ORDER);
+        preg_match_all($regex, $docblock, $matches, PREG_SET_ORDER);
 
-        foreach($matches as $match) {
-            switch($match[1]) {
+        foreach ($matches as $match) {
+            switch ($match[1]) {
                 case 'name':
                     $name = $match[2];
                     break;
@@ -66,11 +73,14 @@ class JsonItem
                 case 'included':
                     $included = $match[2] === 'true';
                     break;
+                case 'omitEmpty':
+                    $omitEmpty = $match[2] === 'true';
+                    break;
                 case 'arrayOrCollectionType':
                     $arrayOrCollectionType = $match[2];
                     break;
             }
         }
-        return new self($name,$arrayOrCollectionType,$dateTimeFormat,$included);
+        return new self($name, $arrayOrCollectionType, $dateTimeFormat, $included, $omitEmpty);
     }
 }

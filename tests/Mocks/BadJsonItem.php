@@ -32,7 +32,7 @@ class BadJsonItem
     #[JsonItem(name: 'last_name')]
     public string $lastName;
 
-    public function __construct(string $explodesBecauseNotPassed)
+    public function __construct(protected string $explodesBecauseNotPassed)
     {
     }
 }

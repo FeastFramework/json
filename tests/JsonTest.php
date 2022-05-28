@@ -85,6 +85,23 @@ class JsonTest extends TestCase
         Json::unmarshal('{"test":"test"}', \Mocks\BadJsonItem::class);
     }
 
+    public function testUnmarshalSkipConstructor(): void
+    {
+        $item = Json::unmarshal('{"last_name":"test"}', \Mocks\BadJsonItem::class, true);
+        $this->assertEquals('test', $item->lastName);
+    }
+
+    public function testMarshalPublicOnly(): void
+    {
+        $item = new \Mocks\BadJsonItem('test');
+        $item->firstName = 'Jeremy';
+        $item->lastName = 'Presutti';
+        $this->assertEquals(
+            '{"first_name":"Jeremy","last_name":"Presutti"}',
+            Json::marshal($item, ReflectionProperty::IS_PUBLIC)
+        );
+    }
+
     public function testUnmarshalWithObject(): void
     {
         $item = new \Mocks\BadJsonItem('ShouldNotExplode');

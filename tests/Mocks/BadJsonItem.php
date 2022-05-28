@@ -36,6 +36,8 @@ class BadJsonItem
      * @JsonItem:name last_name
      */
     public string $lastName;
+    
+    protected string $ignored = '';
 
     public function __construct(string $explodesBecauseNotPassed)
     {

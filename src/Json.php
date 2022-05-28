@@ -35,14 +35,15 @@ class Json
      * The field names are kept as is, unless a Feast\Json\Attributes\JsonItem attribute decorates the property.
      *
      * @param object $object
+     * @param int|null $propertyTypesFlag (see https://www.php.net/manual/en/class.reflectionproperty.php#reflectionproperty.constants.modifiers)
      * @return string
      * @throws ReflectionException
      * @see \Feast\Json\Attributes\JsonItem
      */
-    public static function marshal(object $object): string
+    public static function marshal(object $object, int $propertyTypesFlag = null): string
     {
         $return = new \stdClass();
-        $paramInfo = self::getClassParamInfo(get_class($object));
+        $paramInfo = self::getClassParamInfo(get_class($object), $propertyTypesFlag);
         /**
          * @var string $oldName
          * @var array{name:string|null,type:string|null,dateFormat:string,included:bool,omitEmpty:bool} $newInfo
@@ -56,8 +57,8 @@ class Json
             $reflected = new ReflectionProperty($object, $oldName);
             if ($reflected->isInitialized($object)) {
                 /** @var scalar|object|array|null $oldItem */
-                $oldItem = $object->{$oldName};
-                if ( $newInfo['omitEmpty'] && ($oldItem === null || $oldItem === '')) {
+                $oldItem = $reflected->getValue($object);
+                if ($newInfo['omitEmpty'] && ($oldItem === null || $oldItem === '')) {
                     continue;
                 }
                 if (is_array($oldItem) || $oldItem instanceof \stdClass) {
@@ -84,28 +85,23 @@ class Json
      *
      * @param string $data
      * @param class-string|object $objectOrClass
+     * @param bool $skipConstructor
      * @return object
+     * @throws JsonException
      * @throws ReflectionException
-     * @throws JsonException|\JsonException
+     * @throws \JsonException
      * @see \Feast\Json\Attributes\JsonItem
      */
-    public static function unmarshal(string $data, $objectOrClass): object
+    public static function unmarshal(string $data, $objectOrClass, bool $skipConstructor = false): object
     {
         if (is_string($objectOrClass)) {
-            try {
-                /** @psalm-suppress MixedMethodCall */
-                $object = new $objectOrClass();
-            } catch (\ArgumentCountError $e) {
-                throw new JsonException(
-                    'Attempted to unmarshal into a class without a no-argument capable constructor'
-                );
-            }
+            $object = self::getObjectFromClassString($objectOrClass, $skipConstructor);
         } else {
             $object = $objectOrClass;
         }
         $className = get_class($object);
         /** @var array $jsonData */
-        $jsonData = json_decode($data, true, 512,  JSON_THROW_ON_ERROR);
+        $jsonData = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         $paramInfo = self::getClassParamInfo($className);
 
         $classInfo = new \ReflectionClass($className);
@@ -123,7 +119,8 @@ class Json
                 (string)$paramInfo[$newPropertyName]['type'],
                 (string)$paramInfo[$newPropertyName]['dateFormat'],
                 $propertyValue,
-                $object
+                $object,
+                $skipConstructor
             );
         }
 
@@ -158,24 +155,27 @@ class Json
 
     /**
      * @param class-string $class
+     * @param int|null $getPropertyTypeFlag (see https://www.php.net/manual/en/class.reflectionproperty.php#reflectionproperty.constants.modifiers)
      * @return array<array{name:string|null,type:string|null,dateFormat:string|null,included:bool,omitEmpty:bool}>
      * @throws ReflectionException
      */
     protected static function getClassParamInfo(
-        string $class
+        string $class,
+        int $getPropertyTypeFlag = null
     ): array {
         $return = [];
         $classInfo = new \ReflectionClass($class);
-        foreach ($classInfo->getProperties() as $property) {
+        /** @psalm-suppress PossiblyNullArgument - incorrect, null is valid */
+        foreach ($classInfo->getProperties($getPropertyTypeFlag) as $property) {
             $name = $property->getName();
             $type = null;
             $dateFormat = \DateTimeInterface::ISO8601;
             $included = true;
             $omitEmpty = false;
             $attributes = $property->getDocComment();
-            if ( $attributes !== false ) {
-                $attributeObject = JsonItem::createFromDocblock($name,$attributes);
-            
+            if ($attributes !== false) {
+                $attributeObject = JsonItem::createFromDocblock($name, $attributes);
+
                 $name = $attributeObject->name ?? $name;
                 $type = $attributeObject->arrayOrCollectionType;
                 $dateFormat = $attributeObject->dateFormat;
@@ -207,7 +207,6 @@ class Json
         string $propertySubtype,
         array $jsonData
     ): void {
-        $newProperty = $property->getName();
         $item = [];
         if (class_exists($propertySubtype, true)) {
             /**
@@ -223,12 +222,12 @@ class Json
         } else {
             $item = $jsonData;
         }
-        $object->{$newProperty} = $item;
+        $property->setValue($object, $item);
     }
 
     /**
      * Unmarshal a property into stdClass.
-     * 
+     *
      * @param ReflectionProperty $property
      * @param object $object
      * @param array $jsonData
@@ -238,8 +237,7 @@ class Json
         object $object,
         array $jsonData
     ): void {
-        $newProperty = $property->getName();
-        $object->{$newProperty} = (object)json_decode(json_encode($jsonData));
+        $property->setValue($object, (object)json_decode(json_encode($jsonData)));
     }
 
     /**
@@ -258,7 +256,8 @@ class Json
         string $propertySubtype,
         string $propertyDateFormat,
         $propertyValue,
-        object $object
+        object $object,
+        bool $skipConstructor
     ): void {
         $propertyType = (string)$property->getType();
 
@@ -269,18 +268,46 @@ class Json
                 $propertySubtype,
                 $propertyValue,
             );
-        } elseif ( $propertyType === \stdClass::class && is_array($propertyValue) ) {
-            self::unmarshalStdClass($property,$object,$propertyValue);
-        }
-        elseif (is_a($propertyType, DateTime::class, true) && is_scalar($propertyValue)) {
-            $object->{$property->getName()} = DateTime::createFromFormat($propertyDateFormat, (string)$propertyValue);
+        } elseif ($propertyType === \stdClass::class && is_array($propertyValue)) {
+            self::unmarshalStdClass($property, $object, $propertyValue);
+        } elseif (is_a($propertyType, DateTime::class, true) && is_scalar($propertyValue)) {
+            $property->setValue($object, DateTime::createFromFormat($propertyDateFormat, (string)$propertyValue));
         } elseif (class_exists($propertyType, true)) {
-            $object->{$property->getName()} = self::unmarshal(
-                json_encode($propertyValue),
-                $propertyType
+            $property->setValue(
+                $object,
+                self::unmarshal(
+                    json_encode($propertyValue),
+                    $propertyType,
+                    $skipConstructor
+                )
             );
         } else {
-            $object->{$property->getName()} = $propertyValue;
+            $property->setValue($object, $propertyValue);
         }
+    }
+
+    /**
+     * @param class-string $className
+     * @param bool $skipConstructor
+     * @return object
+     * @throws ReflectionException
+     * @throws JsonException
+     */
+    protected static function getObjectFromClassString(string $className, bool $skipConstructor): object
+    {
+        if ($skipConstructor === false) {
+            try {
+                /** @psalm-suppress MixedMethodCall */
+                $object = new $className();
+            } catch (\ArgumentCountError $e) {
+                throw new JsonException(
+                    'Attempted to unmarshal into a class without a no-argument capable constructor'
+                );
+            }
+        } else {
+            $class = new \ReflectionClass($className);
+            $object = $class->newInstanceWithoutConstructor();
+        }
+        return $object;
     }
 }

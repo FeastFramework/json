@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Feast\Json;
 
 use DateTime;
+use Feast\Exception\ServerFailureException;
 use Feast\Json\Attributes\JsonItem;
 use Feast\Json\Exception\JsonException;
 use ReflectionException;
@@ -83,14 +84,16 @@ class Json
      * Property types can be decorated with the Feast\Json\Attributes\JsonItem attribute.
      * This type info allows layered marshalling.
      *
+     * @template returned
      * @param string $data
-     * @param class-string|object $objectOrClass
+     * @param class-string<returned>|returned $objectOrClass
+     * @psalm-param object|class-string $objectOrClass
      * @param bool $skipConstructor
-     * @return object
      * @throws JsonException
      * @throws ReflectionException
      * @throws \JsonException
      * @see \Feast\Json\Attributes\JsonItem
+     * @return returned|object
      */
     public static function unmarshal(string $data, $objectOrClass, bool $skipConstructor = false): object
     {

@@ -83,13 +83,16 @@ class Json
      * Property types can be decorated with the Feast\Json\Attributes\JsonItem attribute.
      * This type info allows layered marshalling.
      *
+     * @template returned
      * @param string $data
-     * @param class-string|object $objectOrClass
+     * @param class-string<returned>|returned $objectOrClass
+     * @psalm-param object|class-string $objectOrClass
      * @param bool $skipConstructor
-     * @return object
+     * @throws JsonException
      * @throws ReflectionException
-     * @throws JsonException|\JsonException
+     * @throws \JsonException
      * @see \Feast\Json\Attributes\JsonItem
+     * @return returned|object
      */
     public static function unmarshal(string $data, string|object $objectOrClass, bool $skipConstructor = false): object
     {
